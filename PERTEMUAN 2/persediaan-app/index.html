@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Persediaan & Penjualan</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Tambahkan Logo UNDIP -->
+        <img src="assets/images/logo-undip.png" alt="Logo UNDIP" class="logo">
+
+        <h1>📦 Aplikasi Persediaan & Penjualan</h1>
+
+        <!-- Manajemen Stok -->
+        <h2>🛒 Manajemen Stok</h2>
+        <form id="formProduk">
+            <input type="text" id="namaProduk" placeholder="Nama Produk" required>
+            <input type="number" id="hargaProduk" placeholder="Harga" required>
+            <input type="number" id="stokProduk" placeholder="Jumlah" required>
+            <button type="submit">Tambah Produk</button>
+        </form>
+
+        <!-- Daftar Stok -->
+        <h2>Daftar Stok</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Harga</th>
+                    <th>Jumlah</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabelProduk"></tbody>
+        </table>
+
+        <!-- Transaksi Penjualan -->
+        <h2>💰 Transaksi Penjualan</h2>
+        <form id="formJual">
+            <select id="pilihProduk" required></select>
+            <input type="number" id="jumlahJual" placeholder="Jumlah" required>
+            <button type="submit">Jual</button>
+        </form>
+
+        <!-- Riwayat Penjualan -->
+        <h2>📜 Riwayat Penjualan</h2>
+        <ul id="riwayatPenjualan"></ul>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Persediaan & Penjualan</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Tambahkan logo Universitas Diponegoro -->
+        <img src="assets/images/undip-logo.jpg" alt="Logo Universitas Diponegoro" class="logo">
+        <h1>Persediaan & Penjualan Barang</h1>
+
+        <!-- Form Tambah Barang -->
+        <h2>Tambah Barang</h2>
+        <form id="addItemForm">
+            <input type="text" id="itemName" placeholder="Nama Barang" required>
+            <input type="number" id="itemStock" placeholder="Jumlah Stok" required>
+            <input type="number" id="itemPrice" placeholder="Harga Satuan" required>
+            <button type="submit">Tambah</button>
+        </form>
+
+        <!-- Tabel Persediaan -->
+        <h2>Daftar Persediaan</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Barang</th>
+                    <th>Stok</th>
+                    <th>Harga</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryList"></tbody>
+        </table>
+
+        <!-- Form Penjualan -->
+        <h2>Penjualan</h2>
+        <form id="sellItemForm">
+            <select id="sellItemName" required></select>
+            <input type="number" id="sellQuantity" placeholder="Jumlah Terjual" required>
+            <button type="submit">Jual</button>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

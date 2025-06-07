@@ -1,0 +1,6 @@
+production_id,production_date,product_code,quantity_produced,factory_location
+301,2025-01-01,TSHIRT01,100,Semarang
+302,2025-01-03,JACKET02,50,Jakarta
+303,2025-01-05,PANTS03,70,Bandung
+304,2025-01-07,TSHIRT01,120,Semarang
+305,2025-01-09,JACKET02,60,Jakarta

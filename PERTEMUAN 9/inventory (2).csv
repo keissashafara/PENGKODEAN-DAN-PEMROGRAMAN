@@ -1,0 +1,4 @@
+inventory_id,product_code,current_stock,last_updated,warehouse_location
+401,TSHIRT01,202,2025-01-10,Bandung
+402,JACKET02,101,2025-01-10,Jakarta
+403,PANTS03,63,2025-01-10,Surabaya

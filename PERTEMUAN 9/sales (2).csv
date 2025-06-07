@@ -1,0 +1,6 @@
+sale_id,sale_date,product_code,quantity_sold,unit_price,sales_channel
+1001,2025-01-05,TSHIRT01,10,50000,Offline
+1002,2025-01-07,JACKET02,5,120000,Online
+1003,2025-01-07,TSHIRT01,8,50000,Online
+1004,2025-01-10,PANTS03,7,80000,Offline
+1005,2025-01-10,JACKET02,4,120000,Online

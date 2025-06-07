@@ -1,0 +1,4 @@
+produk_id,nama_produk,kategori,harga_satuan,satuan,deskripsi,created_at
+1,Beras Premium,Pangan,15000.00,Kilogram,Beras kualitas terbaik,2025-06-07
+2,Gula Pasir,Pangan,18000.00,Kilogram,Gula pasir murni,2025-06-07
+3,Minyak Goreng,Pangan,22000.00,Liter,Minyak goreng kemasan,2025-06-07

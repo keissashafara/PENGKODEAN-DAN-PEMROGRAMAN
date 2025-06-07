@@ -1,0 +1,554 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {"transaksi_keuangan.csv":"tahun,pendapatan,beban_operasional,penyusutan,skenario\n2022,803000968,321109733,247348776,normal\n2023,746719661,678051347,254542820,normal\n2024,1276077244,436753306,113014600,normal\n2025,576738517,523061607,91007471,normal\n2026,545435058,314967768,178096658,normal\n2027,1833973652,408265833,271701530,normal\n2028,1155283902,309126740,171327524,normal\n2029,963154805,433758075,274648891,normal\n2030,884743662,774562175,148828058,normal\n2022,855127301,493817522,276303977,tax_holiday\n2023,1719283928,459014664,144862495,tax_holiday\n2024,1047804447,981936301,153038823,tax_holiday\n2025,655720206,914053511,90565023,tax_holiday\n2026,1067599994,678280742,118382063,tax_holiday\n2027,1899791169,337230547,155113939,tax_holiday\n2028,932618585,468678227,60152210,tax_holiday\n2029,936141375,487651928,111170659,tax_holiday\n2030,1196701899,355150162,270731739,tax_holiday\n2022,1735072780,363082428,90322737,depresiasi_saldo_menurun\n2023,1398269425,854711001,65162657,depresiasi_saldo_menurun\n2024,1317688117,815376230,139148334,depresiasi_saldo_menurun\n2025,720485894,325148344,269891048,depresiasi_saldo_menurun\n2026,1407409097,646659413,228732830,depresiasi_saldo_menurun\n2027,1710478851,613043480,209945394,depresiasi_saldo_menurun\n2028,614223861,591151845,256866105,depresiasi_saldo_menurun\n2029,1972459319,956611022,95649998,depresiasi_saldo_menurun\n2030,661077415,319201257,132291498,depresiasi_saldo_menurun\n","aset_tetap.csv":"aset_id,kategori,nilai_perolehan,umur_ekonomis,metode\nA01,Mesin,773628229,11,saldo_menurun\nA02,Kendaraan,764504391,15,saldo_menurun\nA03,Mesin,255095128,9,saldo_menurun\nA04,Mesin,490298247,14,saldo_menurun\nA05,Mesin,638602812,12,saldo_menurun\nA06,Bangunan,906261716,8,garis_lurus\nA07,Bangunan,570455246,8,garis_lurus\nA08,Mesin,401302930,13,saldo_menurun\nA09,Bangunan,416177189,6,garis_lurus\nA10,Mesin,489789003,12,saldo_menurun\n","skenario_tax.csv":"tahun,skenario,laba_kena_pajak\n2022,normal,234542459\n2023,normal,-185874506\n2024,normal,726309338\n2025,normal,-37330561\n2026,normal,52370632\n2027,normal,1154006289\n2028,normal,674829638\n2029,normal,254747839\n2030,normal,-38646571\n2022,tax_holiday,85005802\n2023,tax_holiday,1115406769\n2024,tax_holiday,-87170677\n2025,tax_holiday,-348898328\n2026,tax_holiday,270937189\n2027,tax_holiday,1407446683\n2028,tax_holiday,403788148\n2029,tax_holiday,337318788\n2030,tax_holiday,570819998\n2022,depresiasi_saldo_menurun,1281667615\n2023,depresiasi_saldo_menurun,478395767\n2024,depresiasi_saldo_menurun,363163553\n2025,depresiasi_saldo_menurun,125446502\n2026,depresiasi_saldo_menurun,532016854\n2027,depresiasi_saldo_menurun,887489977\n2028,depresiasi_saldo_menurun,-233794089\n2029,depresiasi_saldo_menurun,920198299\n2030,depresiasi_saldo_menurun,209584660\n"};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PPh Badan Analysis Report</title>
+  <!-- Loading Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Loading prop-types -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
+  <!-- Loading React and ReactDOM -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <!-- Loading Babel for JSX -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <!-- Loading PapaParse for CSV parsing -->
+  <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+  <!-- Loading Recharts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.15.0/Recharts.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div id="root" class="container mx-auto p-4"></div>
+
+  <script type="text/babel">
+    // Embedded CSV data
+    const transaksiCsv = `
+tahun,pendapatan,beban_operasional,penyusutan,skenario
+2022,803000968,321109733,247348776,normal
+2023,746719661,678051347,254542820,normal
+2024,1276077244,436753306,113014600,normal
+2025,576738517,523061607,91007471,normal
+2026,545435058,314967768,178096658,normal
+2027,1833973652,408265833,271701530,normal
+2028,1155283902,309126740,171327524,normal
+2029,963154805,433758075,274648891,normal
+2030,884743662,774562175,148828058,normal
+2022,855127301,493817522,276303977,tax_holiday
+2023,1719283928,459014664,144862495,tax_holiday
+2024,1047804447,981936301,153038823,tax_holiday
+2025,655720206,914053511,90565023,tax_holiday
+2026,1067599994,678280742,118382063,tax_holiday
+2027,1899791169,337230547,155113939,tax_holiday
+2028,932618585,468678227,60152210,tax_holiday
+2029,936141375,487651928,111170659,tax_holiday
+2030,1196701899,355150162,270731739,tax_holiday
+2022,1735072780,363082428,90322737,depresiasi_saldo_menurun
+2023,1398269425,854711001,65162657,depresiasi_saldo_menurun
+2024,1317688117,815376230,139148334,depresiasi_saldo_menurun
+2025,720485894,325148344,269891048,depresiasi_saldo_menurun
+2026,1407409097,646659413,228732830,depresiasi_saldo_menurun
+2027,1710478851,613043480,209945394,depresiasi_saldo_menurun
+2028,614223861,591151845,256866105,depresiasi_saldo_menurun
+2029,1972459319,956611022,95649998,depresiasi_saldo_menurun
+2030,661077415,319201257,132291498,depresiasi_saldo_menurun
+`;
+
+    const kebijakanCsv = `
+tahun,tax_rate,tax_holiday_awal,tax_holiday_akhir
+2022,0.22,2023,2027
+2023,0.22,2023,2027
+2024,0.22,2023,2027
+2025,0.22,2023,2027
+2026,0.22,2023,2027
+2027,0.22,2023,2027
+2028,0.22,2023,2027
+2029,0.22,2023,2027
+2030,0.22,2023,2027
+`;
+
+    const asetCsv = `
+aset_id,kategori,nilai_perolehan,umur_ekonomis,metode
+A01,Mesin,773628229,11,saldo_menurun
+A02,Kendaraan,764504391,15,saldo_menurun
+A03,Mesin,255095128,9,saldo_menurun
+A04,Mesin,490298247,14,saldo_menurun
+A05,Mesin,638602812,12,saldo_menurun
+A06,Bangunan,906261716,8,garis_lurus
+A07,Bangunan,570455246,8,garis_lurus
+A08,Mesin,401302930,13,saldo_menurun
+A09,Bangunan,416177189,6,garis_lurus
+A10,Mesin,489789003,12,saldo_menurun
+`;
+
+    const taxCsv = `
+tahun,skenario,laba_kena_pajak
+2022,normal,234542459
+2023,normal,-185874506
+2024,normal,726309338
+2025,normal,-37330561
+2026,normal,52370632
+2027,normal,1154006289
+2028,normal,674829638
+2029,normal,254747839
+2030,normal,-38646571
+2022,tax_holiday,85005802
+2023,tax_holiday,1115406769
+2024,tax_holiday,-87170677
+2025,tax_holiday,-348898328
+2026,tax_holiday,270937189
+2027,tax_holiday,1407446683
+2028,tax_holiday,403788148
+2029,tax_holiday,337318788
+2030,tax_holiday,570819998
+2022,depresiasi_saldo_menurun,1281667615
+2023,depresiasi_saldo_menurun,478395767
+2024,depresiasi_saldo_menurun,363163553
+2025,depresiasi_saldo_menurun,125446502
+2026,depresiasi_saldo_menurun,532016854
+2027,depresiasi_saldo_menurun,887489977
+2028,depresiasi_saldo_menurun,-233794089
+2029,depresiasi_saldo_menurun,920198299
+2030,depresiasi_saldo_menurun,209584660
+`;
+
+    // Main App component
+    const App = () => {
+      // State for data
+      const [transaksiData, setTransaksiData] = React.useState(null);
+      const [kebijakanData, setKebijakanData] = React.useState(null);
+      const [asetData, setAsetData] = React.useState(null);
+      const [taxData, setTaxData] = React.useState(null);
+      const [loading, setLoading] = React.useState(true);
+      const chartRefs = {
+        revenue: React.useRef(null),
+        pph: React.useRef(null),
+        asset: React.useRef(null)
+      };
+
+      // Process and clean CSV data
+      const processAndCleanData = (data) => {
+        return data.map(row => {
+          const cleaned = {};
+          Object.keys(row).forEach(key => {
+            let value = row[key];
+            if (typeof value === 'string') {
+              value = value.trim();
+              if (!isNaN(value) && value !== '') {
+                value = parseFloat(value);
+              }
+            }
+            cleaned[key] = value;
+          });
+          return cleaned;
+        }).filter(row => Object.values(row).some(val => val !== '' && val != null));
+      };
+
+      // Format large numbers
+      const formatNumber = (num) => {
+        if (isNaN(num) || num == null) return 'N/A';
+        if (Math.abs(num) >= 1e9) return (num / 1e9).toFixed(1) + 'B';
+        if (Math.abs(num) >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+        return num.toLocaleString();
+      };
+
+      // Calculate PPh Badan
+      const calculatePphBadan = (taxableIncome, year, scenario, kebijakanData) => {
+        const taxRate = kebijakanData.find(row => row.tahun === year)?.tax_rate || 0.22;
+        if (scenario === 'tax_holiday' && year >= 2023 && year <= 2027) {
+          return 0;
+        }
+        return Math.max(taxableIncome, 0) * taxRate;
+      };
+
+      // Download CSV
+      const downloadCSV = (data, filename) => {
+        const csvContent = Papa.unparse(data);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.click();
+        URL.revokeObjectURL(url);
+      };
+
+      // Download chart as PNG
+      const downloadImage = (ref, filename) => {
+        if (ref.current) {
+          const svg = ref.current.container.querySelector('svg');
+          if (svg) {
+            const canvas = document.createElement('canvas');
+            const svgSize = svg.getBoundingClientRect();
+            canvas.width = svgSize.width;
+            canvas.height = svgSize.height;
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            const svgData = new XMLSerializer().serializeToString(svg);
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+            img.onload = () => {
+              ctx.drawImage(img, 0, 0);
+              const url = canvas.toDataURL('image/png');
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = filename;
+              link.click();
+            };
+          }
+        }
+      };
+
+      // Load and parse CSV data
+      React.useEffect(() => {
+        // Parse transaksi_keuangan.csv
+        Papa.parse(transaksiCsv, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: header => header.trim().replace(/^"|"$/g, ''),
+          transform: (value, header) => {
+            let cleaned = value.trim().replace(/^"|"$/g, '');
+            return !isNaN(cleaned) && cleaned !== '' ? parseFloat(cleaned) : cleaned;
+          },
+          complete: (results) => {
+            setTransaksiData(processAndCleanData(results.data));
+          },
+          error: (err) => console.error('Error parsing transaksi:', err)
+        });
+
+        // Parse kebijakan_fiskal.csv
+        Papa.parse(kebijakanCsv, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: header => header.trim().replace(/^"|"$/g, ''),
+          transform: (value, header) => {
+            let cleaned = value.trim().replace(/^"|"$/g, '');
+            return !isNaN(cleaned) && cleaned !== '' ? parseFloat(cleaned) : cleaned;
+          },
+          complete: (results) => {
+            setKebijakanData(processAndCleanData(results.data));
+          },
+          error: (err) => console.error('Error parsing kebijakan:', err)
+        });
+
+        // Parse aset_tetap.csv
+        Papa.parse(asetCsv, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: header => header.trim().replace(/^"|"$/g, ''),
+          transform: (value, header) => {
+            let cleaned = value.trim().replace(/^"|"$/g, '');
+            return !isNaN(cleaned) && cleaned !== '' ? parseFloat(cleaned) : cleaned;
+          },
+          complete: (results) => {
+            setAsetData(processAndCleanData(results.data));
+          },
+          error: (err) => console.error('Error parsing aset:', err)
+        });
+
+        // Parse skenario_tax.csv
+        Papa.parse(taxCsv, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: header => header.trim().replace(/^"|"$/g, ''),
+          transform: (value, header) => {
+            let cleaned = value.trim().replace(/^"|"$/g, '');
+            return !isNaN(cleaned) && cleaned !== '' ? parseFloat(cleaned) : cleaned;
+          },
+          complete: (results) => {
+            const dataWithPph = processAndCleanData(results.data).map(row => ({
+              ...row,
+              pph_badan: calculatePphBadan(row.laba_kena_pajak, row.tahun, row.skenario, kebijakanData || results.data)
+            }));
+            setTaxData(dataWithPph);
+            setLoading(false);
+          },
+          error: (err) => console.error('Error parsing tax:', err)
+        });
+      }, []);
+
+      if (loading || !transaksiData || !kebijakanData || !asetData || !taxData) {
+        return (
+          <div className="text-center text-xl text-gray-600 mt-10">
+            Loading financial data...
+          </div>
+        );
+      }
+
+      // Aggregate asset data by category
+      const assetByCategory = asetData.reduce((acc, row) => {
+        const category = row.kategori;
+        const value = row.nilai_perolehan;
+        if (!isNaN(value)) {
+          acc[category] = (acc[category] || 0) + value;
+        }
+        return acc;
+      }, {});
+      const pieData = Object.keys(assetByCategory).map(category => ({
+        name: category,
+        value: assetByCategory[category]
+      }));
+
+      // Prepare data for line and bar charts
+      const scenarios = ['normal', 'tax_holiday', 'depresiasi_saldo_menurun'];
+      const colors = {
+        normal: '#8884d8',
+        tax_holiday: '#82ca9d',
+        depresiasi_saldo_menurun: '#ffc658'
+      };
+      const lineChartData = transaksiData.reduce((acc, row) => {
+        const year = row.tahun;
+        const scenario = row.skenario;
+        if (!acc[year]) {
+          acc[year] = { tahun: year };
+        }
+        acc[year][`${scenario}_pendapatan`] = row.pendapatan;
+        acc[year][`${scenario}_beban`] = row.beban_operasional;
+        return acc;
+      }, {});
+      const lineChartArray = Object.values(lineChartData).sort((a, b) => a.tahun - b.tahun);
+
+      const barChartData = taxData.reduce((acc, row) => {
+        const year = row.tahun;
+        const scenario = row.skenario;
+        if (!acc[year]) {
+          acc[year] = { tahun: year };
+        }
+        acc[year][scenario] = row.pph_badan;
+        return acc;
+      }, {});
+      const barChartArray = Object.values(barChartData).sort((a, b) => a.tahun - b.tahun);
+
+      // Calculate average PPh Badan by scenario
+      const avgPph = scenarios.map(scenario => {
+        const scenarioData = taxData.filter(row => row.skenario === scenario);
+        const total = scenarioData.reduce((sum, row) => sum + (row.pph_badan || 0), 0);
+        return { scenario, avg: total / scenarioData.length };
+      });
+      const highestAvgScenario = avgPph.reduce((max, curr) => curr.avg > max.avg ? curr : max, avgPph[0]);
+
+      // Prepare summary table for download
+      const summaryData = transaksiData.map(row => {
+        const taxRow = taxData.find(t => t.tahun === row.tahun && t.skenario === row.skenario);
+        return {
+          Year: row.tahun,
+          Scenario: row.skenario,
+          Revenue: formatNumber(row.pendapatan),
+          'Operational Expenses': formatNumber(row.beban_operasional),
+          Depreciation: formatNumber(row.penyusutan),
+          'Taxable Income': formatNumber(taxRow?.laba_kena_pajak),
+          'PPh Badan': formatNumber(taxRow?.pph_badan)
+        };
+      });
+
+      return (
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          {/* Summary Section */}
+          <h1 className="text-3xl font-bold text-blue-800 mb-4">PPh Badan Analysis Report (2022–2030)</h1>
+          <p className="text-gray-700 mb-6">
+            This report analyzes corporate income tax (PPh Badan) across three scenarios: Normal, Tax Holiday, and Declining Balance Depreciation. Data spans 2022 to 2030, with a tax holiday (2023–2027) applying a 0% tax rate for the Tax Holiday scenario. The analysis includes revenue, expenses, depreciation, taxable income, and PPh Badan, with insights into asset distribution.
+          </p>
+
+          {/* Interesting Fact */}
+          <div className="bg-blue-100 p-4 rounded-lg mb-6">
+            <h2 className="text-xl font-semibold text-blue-800">Interesting Fact</h2>
+            <p className="text-gray-700">
+              In 2025, the Tax Holiday scenario shows a revenue of 655M but a taxable income of -348M due to high operational expenses (914M). The tax holiday results in zero PPh Badan, highlighting the benefit of tax incentives despite negative profitability.
+            </p>
+          </div>
+
+          {/* Line Chart: Revenue and Expenses */}
+          <h2 className="text-2xl font-semibold text-blue-800 mb-4">Revenue and Operational Expenses by Scenario</h2>
+          <div className="mb-6">
+            <Recharts.ResponsiveContainer width="100%" height={400} ref={chartRefs.revenue}>
+              <Recharts.LineChart data={lineChartArray}>
+                <Recharts.CartesianGrid strokeDasharray="3 3" />
+                <Recharts.XAxis dataKey="tahun" />
+                <Recharts.YAxis tickFormatter={formatNumber} />
+                <Recharts.Tooltip formatter={formatNumber} />
+                <Recharts.Legend />
+                {scenarios.map(scenario => (
+                  <>
+                    <Recharts.Line
+                      type="monotone"
+                      dataKey={`${scenario}_pendapatan`}
+                      name={`${scenario} Revenue`}
+                      stroke={colors[scenario]}
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                    <Recharts.Line
+                      type="monotone"
+                      dataKey={`${scenario}_beban`}
+                      name={`${scenario} Expenses`}
+                      stroke={colors[scenario]}
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={false}
+                    />
+                  </>
+                ))}
+              </Recharts.LineChart>
+            </Recharts.ResponsiveContainer>
+            <button
+              className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => downloadImage(chartRefs.revenue, 'revenue_expenses.png')}
+            >
+              Download Chart
+            </button>
+          </div>
+
+          {/* Bar Chart: PPh Badan */}
+          <h2 className="text-2xl font-semibold text-blue-800 mb-4">Corporate Income Tax (PPh Badan) by Scenario</h2>
+          <div className="mb-6">
+            <Recharts.ResponsiveContainer width="100%" height={400} ref={chartRefs.pph}>
+              <Recharts.BarChart data={barChartArray}>
+                <Recharts.CartesianGrid strokeDasharray="3 3" />
+                <Recharts.XAxis dataKey="tahun" />
+                <Recharts.YAxis tickFormatter={formatNumber} />
+                <Recharts.Tooltip formatter={formatNumber} />
+                <Recharts.Legend />
+                {scenarios.map(scenario => (
+                  <Recharts.Bar
+                    dataKey={scenario}
+                    name={scenario}
+                    fill={colors[scenario]}
+                  />
+                ))}
+              </Recharts.BarChart>
+            </Recharts.ResponsiveContainer>
+            <button
+              className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => downloadImage(chartRefs.pph, 'pph_badan.png')}
+            >
+              Download Chart
+            </button>
+          </div>
+
+          {/* Pie Chart: Asset Distribution */}
+          <h2 className="text-2xl font-semibold text-blue-800 mb-4">Asset Acquisition Value by Category</h2>
+          <div className="mb-6">
+            <Recharts.ResponsiveContainer width="100%" height={400} ref={chartRefs.asset}>
+              <Recharts.PieChart>
+                <Recharts.Pie
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={150}
+                  fill="#8884d8"
+                  label={({ name, value }) => `${name}: ${formatNumber(value)}`}
+                >
+                  {pieData.map((entry, index) => (
+                    <Recharts.Cell
+                      key={`cell-${index}`}
+                      fill={['#8884d8', '#82ca9d', '#ffc658'][index % 3]}
+                    />
+                  ))}
+                </Recharts.Pie>
+                <Recharts.Tooltip formatter={formatNumber} />
+                <Recharts.Legend />
+              </Recharts.PieChart>
+            </Recharts.ResponsiveContainer>
+            <button
+              className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => downloadImage(chartRefs.asset, 'asset_distribution.png')}
+            >
+              Download Chart
+            </button>
+          </div>
+
+          {/* Summary Table */}
+          <h2 className="text-2xl font-semibold text-blue-800 mb-4">Summary of Financial Metrics</h2>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-blue-800 text-white">
+                  <th className="p-2">Year</th>
+                  <th className="p-2">Scenario</th>
+                  <th className="p-2">Revenue</th>
+                  <th className="p-2">Operational Expenses</th>
+                  <th className="p-2">Depreciation</th>
+                  <th className="p-2">Taxable Income</th>
+                  <th className="p-2">PPh Badan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transaksiData.map((row, index) => {
+                  const taxRow = taxData.find(t => t.tahun === row.tahun && t.skenario === row.skenario);
+                  return (
+                    <tr key={index} className="border-b">
+                      <td className="p-2">{row.tahun}</td>
+                      <td className="p-2">{row.skenario}</td>
+                      <td className="p-2">{formatNumber(row.pendapatan)}</td>
+                      <td className="p-2">{formatNumber(row.beban_operasional)}</td>
+                      <td className="p-2">{formatNumber(row.penyusutan)}</td>
+                      <td className="p-2">{taxRow ? formatNumber(taxRow.laba_kena_pajak) : 'N/A'}</td>
+                      <td className="p-2">{taxRow ? formatNumber(taxRow.pph_badan) : 'N/A'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <button
+              className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => downloadCSV(summaryData, 'financial_summary.csv')}
+            >
+              Download Table as CSV
+            </button>
+          </div>
+
+          {/* Conclusion */}
+          <h2 className="text-2xl font-semibold text-blue-800 mt-6 mb-4">Conclusion</h2>
+          <p className="text-gray-700">
+            The Tax Holiday scenario (2023–2027) is the most tax-efficient, with zero PPh Badan during the tax holiday period. The Normal scenario has the highest average PPh Badan ({formatNumber(highestAvgScenario.avg)}), reflecting consistent taxable income but no tax relief. The Declining Balance Depreciation scenario shows volatility, with high PPh Badan in 2022 (281M) and negative taxable income in 2028 (-233M). Assets are heavily weighted toward machinery (Mesin), indicating capital-intensive operations. <strong>Recommendations:</strong> Leverage tax holidays for reinvestment, optimize operational expenses, and evaluate depreciation methods to stabilize tax liabilities.
+          </p>
+        </div>
+      );
+    };
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

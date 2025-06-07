@@ -1,0 +1,4 @@
+produksi_id,produk_id,tanggal_produksi,jumlah_produksi,biaya_produksi,lokasi_produksi,status
+1,1,2025-06-01,1000,12000000.00,Pabrik A,Selesai
+2,2,2025-06-02,500,8000000.00,Pabrik B,Selesai
+3,3,2025-06-03,750,15000000.00,Pabrik C,Selesai

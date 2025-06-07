@@ -1,4 +1,0 @@
-penjualan_id,produk_id,tanggal_penjualan,jumlah_terjual,harga_jual,pelanggan,total_pendapatan,created_at
-1,1,2025-06-05,200,16000.00,Toko ABC,3200000.00,2025-06-07
-2,2,2025-06-06,150,19000.00,Toko XYZ,2850000.00,2025-06-07
-3,3,2025-06-07,100,23000.00,Toko Jaya,2300000.00,2025-06-07
